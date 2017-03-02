@@ -1,6 +1,9 @@
 html,
 body {
     height: 100%;
+    display: table-cell;
+    vertical-align: middle;
+    height: 50px;
 }
 
 .wrap {
@@ -74,6 +77,8 @@ a.desc:after {
 
 .grid-view td {
     white-space: nowrap;
+
+
 }
 
 .grid-view .filters input,
@@ -85,6 +90,7 @@ a.desc:after {
     display: block;
     margin-top: 5px;
     color: #999;
+
 }
 
 .error-summary {
@@ -117,4 +123,20 @@ a.desc:after {
 
 .nav > li > form > button.logout:focus {
     outline: none;
+}
+
+.buttondiv {
+    float: left;
+}
+#007{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+    z-index: 5;
+}
+#loading-indicator {
+    position: absolute;
+    left: 10px;
+    top: 10px;
 }

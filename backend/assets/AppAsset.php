@@ -15,6 +15,7 @@ class AppAsset extends AssetBundle
         'css/site.css',
     ];
     public $js = [
+        'js/loading_indicator.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',

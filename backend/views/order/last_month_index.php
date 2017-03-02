@@ -53,6 +53,9 @@
 //    $ttt = 'Эликсир для печени';
 //}
 
+
+
+
 use yii\grid\GridView;
 use kartik\export\ExportMenu;
 use backend\models\OrderItems;
@@ -90,7 +93,7 @@ $this->params['breadcrumbs'][] = $this->title;
 </div>
 <div class="order-index">
     <!--    <img src="http://dkclasses.com/images/loading.gif" id="loading-indicator" style="display: none" />-->
-    <h1>Доставляемость за позапрошлый месяц </h1>
+    <h1>Доставляемость за прошлый месяц</h1>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
     <div style="width: 50%; margin: 0 auto; text-align: center;">
         <button class='btn btn-primary' style="width:185px;height:60px;display:inline-block;"
@@ -106,16 +109,14 @@ $this->params['breadcrumbs'][] = $this->title;
             Доставляемость за<br>прошлую неделю
         </button>
     </div>
-
-
     <div style="width: 25%; margin: 0 auto; text-align: center;"><br>
 
-        <?php $form1 = ActiveForm::begin(['id' => 'pre_last_month', 'method' => 'GET']); ?>
+        <?php $form1 = ActiveForm::begin(['id' => 'last_month', 'method' => 'GET']); ?>
 
         <select name="list">
-            <option value="">ВСЕ</option>
+            <option selected value="">ВСЕ</option>
             <option value="cream">КРЕМА</option>
-            <option value="elixir">ЭЛИКСИРЫ</option>
+            <option  value="elixir">ЭЛИКСИРЫ</option>
             <option value="'vari-cream-com'">Крем от варикоза</option>
             <option value="'joint-cream'">Крем для суставов</option>
             <option value="'gemor-cream'">Крем от геморроя</option>
@@ -133,10 +134,10 @@ $this->params['breadcrumbs'][] = $this->title;
             <option value="'elixir-liver'">Эликсир для печени</option>
         </select>
 
-        <input type="hidden" value="1" name="pre_last_month">
+        <input type="hidden" value="0" name="last_month">
 
         <div class="form-group" style="float:left;margin-left: 5px;">
-            <?= Html::submitButton('Позапрошлый <br> месяц', ['class' => 'btn btn-primary', 'name' => 'n1',
+            <?= Html::submitButton('Прошлый <br> месяц', ['class' => 'btn btn-primary', 'name' => 'n1',
                 'style'=>"width:120px;display:inline-block;"])
             ?>
 
@@ -146,21 +147,17 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <?php $form1 = ActiveForm::begin(['id' => 'last_month', 'method' => 'GET']); ?>
 
-        <input type="hidden" value="0" name="last_month">
+        <input type="hidden" value="1" name="pre_last_month">
 
         <div class="form-group" style="float:left;margin-left: 5px;">
-            <?= Html::submitButton('Прошлый <br> месяц', ['class' => 'btn btn-primary', 'name' => 'nn',]) ?>
+            <?= Html::submitButton('Позапрошлый <br> месяц', ['class' => 'btn btn-primary', 'name' => 'nn',]) ?>
         </div>
     </div>
     <div style="clear:both;"></div>
     <?php ActiveForm::end(); ?></div>
-<!--    <form method="post">-->
-<!--    <select name="list">-->
-<!--        <option value="vari-cream-com">vari-cream-com</option>-->
-<!--        <option value="joint-cream">joint-cream</option>-->
-<!--        <option value="gemor-cream">gemor-cream</option>-->
-<!--    </select>-->
-<!--    </form>-->
+
+    
+
     <?php
     $gridColumns = [
 
@@ -201,6 +198,23 @@ $this->params['breadcrumbs'][] = $this->title;
                 }
             }
 
+        ],
+        [
+            'contentOptions' => ['class' => 'text-center', 'style' => 'width: 65px; max-width: 65px;'],
+            'headerOptions' => ['class' => 'text-center'],
+            'header' => 'Разница с топом',
+            'value' => function ($data){
+                try{
+                    $top =  ($data['paid'] + $data['delivered']) / ($data['paid'] + $data['later'] + $data['deliveryapproved'] + $data['problem'] + $data['refusetosend']
+                            + $data['refusetoreceive'] + $data['sent'] + $data['send'] + $data['parcelreturned'] + $data['stop']
+                            + $data['parcelonaplace'] + $data['delivered'] + $data['injob'] + $data['fake']) * 100 - $data['top'];
+                    return round($top, 2);
+                }
+                catch (ErrorException $e)
+                {
+                    return 0;
+                }
+                }
         ],
 
         [
@@ -569,7 +583,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 return ['style' => 'background-color:#FBEEEA;'];
             }
             if ($data['order_customFields_delivery_method'] == 'АЗЕРБАЙДЖАН' or $data['order_customFields_delivery_method'] == 'АЗЕРБАЙДЖАН КРЕМ'
-                or $data['order_customFields_delivery_method'] == 'Pony Express Азербайджан' or $data['order_customFields_delivery_method'] == 'ВЕСЬ АЗЕРБАЙДЖАН'
+                or $data['order_customFields_delivery_method'] == 'Pony Express Азербайджан' or $data['order_customFields_delivery_method'] == 'ВЕСЬ АЗЕРБАЙДЖАН' or $data['order_customFields_delivery_method'] == 'АЗЕРБАЙДЖАН РЕГИОНЫ'
             )
             {
                 return ['style' => 'background-color:#F2D048;'];
@@ -614,7 +628,7 @@ $this->params['breadcrumbs'][] = $this->title;
             {
                 return ['style' => 'background-color:#DFFBD5;'];
             }
-            if ($data['order_customFields_delivery_method'] == 'Армения BPro')
+            if ($data['order_customFields_delivery_method'] == 'Армения BPro' or $data['order_customFields_delivery_method'] == 'АРМЕНИЯ')
             {
                 return ['style' => 'background-color:#C4AF6E;'];
             }
@@ -703,6 +717,23 @@ $this->params['breadcrumbs'][] = $this->title;
                     }
                 }
 
+            ],
+            [
+                'contentOptions' => ['class' => 'text-center', 'style' => 'width: 65px; max-width: 65px;'],
+                'headerOptions' => ['class' => 'text-center'],
+                'header' => 'Разница с топом',
+                'value' => function ($data){
+                    try{
+                        $top =  ($data['paid'] + $data['delivered']) / ($data['paid'] + $data['later'] + $data['deliveryapproved'] + $data['problem'] + $data['refusetosend']
+                                + $data['refusetoreceive'] + $data['sent'] + $data['send'] + $data['parcelreturned'] + $data['stop']
+                                + $data['parcelonaplace'] + $data['delivered'] + $data['injob'] + $data['fake']) * 100 - $data['top'];
+                        return round($top, 2);
+                    }
+                    catch (ErrorException $e)
+                    {
+                        return 0;
+                    }
+                }
             ],
 
             [
@@ -821,7 +852,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             return 0;
                         }
                     } elseif ($data['order_customFields_delivery_method'] == 'АЗЕРБАЙДЖАН' or $data['order_customFields_delivery_method'] == 'АЗЕРБАЙДЖАН КРЕМ'
-                        or $data['order_customFields_delivery_method'] == 'Pony Express Азербайджан' or $data['order_customFields_delivery_method'] == 'ВЕСЬ АЗЕРБАЙДЖАН'
+                        or $data['order_customFields_delivery_method'] == 'Pony Express Азербайджан' or $data['order_customFields_delivery_method'] == 'ВЕСЬ АЗЕРБАЙДЖАН' or $data['order_customFields_delivery_method'] == 'АЗЕРБАЙДЖАН РЕГИОНЫ'
                     )
                     {
                         try
@@ -834,7 +865,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         {
                             return 0;
                         }
-                    } elseif ($data['order_customFields_delivery_method'] == 'Армения BPro'
+                    } elseif ($data['order_customFields_delivery_method'] == 'Армения BPro' or $data['order_customFields_delivery_method'] == 'АРМЕНИЯ'
                     )
                     {
                         try
@@ -970,7 +1001,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             return 0;
                         }
                     } elseif ($data['order_customFields_delivery_method'] == 'АЗЕРБАЙДЖАН' or $data['order_customFields_delivery_method'] == 'АЗЕРБАЙДЖАН КРЕМ'
-                        or $data['order_customFields_delivery_method'] == 'Pony Express Азербайджан' or $data['order_customFields_delivery_method'] == 'ВЕСЬ АЗЕРБАЙДЖАН'
+                        or $data['order_customFields_delivery_method'] == 'Pony Express Азербайджан' or $data['order_customFields_delivery_method'] == 'ВЕСЬ АЗЕРБАЙДЖАН' or $data['order_customFields_delivery_method'] == 'АЗЕРБАЙДЖАН РЕГИОНЫ'
                     )
 
                     {
@@ -981,7 +1012,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         {
                             return 0;
                         }
-                    } elseif ($data['order_customFields_delivery_method'] == 'Армения BPro')
+                    } elseif ($data['order_customFields_delivery_method'] == 'Армения BPro' or $data['order_customFields_delivery_method'] == 'АРМЕНИЯ')
 
                     {
                         try
@@ -1041,4 +1072,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         ]
     ]); ?>
+<?php
+
+?>
 </div>

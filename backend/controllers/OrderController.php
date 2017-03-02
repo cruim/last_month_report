@@ -4,30 +4,53 @@ namespace backend\controllers;
 
 use Yii;
 use backend\models\Order;
-use backend\models\OrderSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\data\ArrayDataProvider;
+use yii\filters\AccessControl;
 
 /**
  * OrderController implements the CRUD actions for Order model.
  */
 class OrderController extends Controller
 {
+//    public $enableCsrfValidation = false;
+//    public function beforeAction($action)
+//    {
+//        $this->enableCsrfValidation = false;
+//        return parent::beforeAction($action);
+//    }
     /**
      * @inheritdoc
      */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
+//    public function behaviors()
+//    {
+//        return [
+//            'access' => [
+//                'class' => AccessControl::className(),
+////                'only' => ['create', 'update', 'delete'],
+//                'rules' => [
+//                    [
+//                        'actions' => ['login', 'error'],
+//                        'allow' => true,
+//                    ],
+//                    [
+////                        'actions' => ['logout', 'index'],
+//                        'allow' => true,
+//                        'roles' => ['@'],
+//                    ],
+//                ],
+//            ],
+//
+//            'verbs' => [
+//                'class' => VerbFilter::className(),
+//                'actions' => [
+//                    'delete' => ['POST'],
+//                ],
+//            ],
+//        ];
+//    }
 
     /**
      * Lists all Order models.
@@ -35,14 +58,62 @@ class OrderController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new OrderSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $data = null;
 
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
+        if(isset($_GET['last_month'])) {
+            $data = order::getCheck();
+            $dataProvider = new ArrayDataProvider([
+                'allModels' => $data,
+                'sort' => [
+                ],
+                'pagination' => [
+                    'pageSize' => 50,
+                ],
+            ]);
+
+            return $this->render('last_month_index',['dataProvider' =>$dataProvider]);
+        }
+
+        if(isset($_GET['pre_last_month'])) {
+            $data = order::getCheckPreLastMonth();
+            $dataProvider = new ArrayDataProvider([
+                'allModels' => $data,
+                'sort' => [
+                ],
+                'pagination' => [
+                    'pageSize' => 50,
+                ],
+            ]);
+
+            return $this->render('index',['dataProvider' =>$dataProvider]);
+        }
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $data,
+            'sort' => [
+            ],
+            'pagination' => [
+                'pageSize' => 50,
+            ],
         ]);
+
+        return $this->render('last_month_index',['dataProvider' =>$dataProvider]);
     }
+//    public function actionIndex()
+//    {
+//        $data = order::getCheck();
+//
+//        $dataProvider = new ArrayDataProvider([
+//            'allModels' => $data,
+//            'sort' => [
+//                'attributes' => ['order_customFields_delivery_method']
+//            ],
+//            'pagination' => [
+//                'pageSize' => 50,
+//            ],
+//        ]);
+//        return $this->render('index',['dataProvider' =>$dataProvider]);
+//    }
 
     /**
      * Displays a single Order model.
@@ -113,6 +184,7 @@ class OrderController extends Controller
      * @return Order the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
+    
     protected function findModel($id)
     {
         if (($model = Order::findOne($id)) !== null) {
@@ -121,4 +193,6 @@ class OrderController extends Controller
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
+    
+    
 }
